@@ -18,7 +18,9 @@ WALDO.tagger = {
   },
 
   checkGameOver: function() {
-    return (this.selectedNames.length === this.names.length);
+
+    
+    return ((this.selectedNames.length === this.names.length) && this.selectedNames.length === 0);
   },
 
   decrementTime: function() {

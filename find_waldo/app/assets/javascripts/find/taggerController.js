@@ -8,10 +8,15 @@ WALDO.taggerController = {
       WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.getUnselected(), WALDO.tagger.permanent);
     });
 
-    setInterval(function() {
+    var gameLoop = setInterval(function() {
       WALDO.tagger.decrementTime();
       WALDO.taggerView.renderAndUpdateScore(WALDO.tagger.time);
 
+      if (WALDO.tagger.checkGameOver) {
+        clearInterval(gameLoop);
+        alert("You've won with a score of: " + WALDO.tagger.time);
+
+      }
     }, 1000);
   },
 
