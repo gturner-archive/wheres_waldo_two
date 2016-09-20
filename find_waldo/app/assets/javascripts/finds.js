@@ -6,29 +6,57 @@ var WALDO = WALDO || {};
 
 WALDO.tagger = {
 
-  names: ['Graham', 'Adrian'],
+  names: [],
 
   permanent: [],
 
   init: function() {
+    this.getNames();
+  },
 
+  buildNames: function(response) {
+    WALDO.tagger.names = response;
+  },
+
+  getNames: function() {
+    $.ajax({
+      url: '/',
+      contentType: 'application/json',
+      type: 'GET',
+      dataType: 'json',
+      success: WALDO.tagger.buildNames
+    });
   },
 
   createTempBox: function(x, y) {
     WALDO.tagger.tempBoxCoords = [x,y];
   },
 
-  createBox: function(name) {
+  createBox: function(name, id) {
+
     var person = {
-      name: name,
+      character_id: id,
       x: this.tempBoxCoords[0],
       y: this.tempBoxCoords[1]
     }
-    this.permanent.push(person);
+
     this.tempBoxCoords = [];
+
+    return $.ajax({
+      url: '/finds',
+      async: false,
+      contentType: 'application/json',
+      type: 'POST',
+      dataType: 'json',
+      success: WALDO.tagger.updatePermanent,
+      data: JSON.stringify(person)
+    });
+
   },
 
-
+  updatePermanent: function(response) {
+    WALDO.tagger.permanent.push(response);
+  }
 
 };
 
@@ -74,11 +102,11 @@ WALDO.taggerView = {
 
   nameClick: function(e) {
     var name = $(e.target).text();
-    WALDO.taggerController.createTag(name);
+    var id = $(e.target).attr('data-id')
+    WALDO.taggerController.createTag(name, id);
   },
 
 
-  //REFACTOR
   render: function(coordsArr, namesArr, permArr) {
     $('.temp-tag').remove();
     $('.dropdown').remove();
@@ -87,9 +115,9 @@ WALDO.taggerView = {
       this.renderTemp(coordsArr, namesArr);
     }
     if (permArr[0]) {
-      this.renderPermanent(permArr);  
+      this.renderPermanent(permArr);
     }
-    
+
   },
 
   renderTemp: function(coordsArr, namesArr) {
@@ -114,9 +142,10 @@ WALDO.taggerView = {
     $('body').append($dropdown);
   },
 
-  buildListItems: function(name, $namesBox) {
+  buildListItems: function(character, $namesBox) {
     var $li = $('<li>');
-    $li.text(name);
+    $li.text(character.name)
+    $li.attr('data-id', character.id);
     $li.addClass('name-item');
     $namesBox.append($li);
   },
@@ -142,6 +171,7 @@ WALDO.taggerView = {
 
 WALDO.taggerController = {
   init : function() {
+    WALDO.tagger.init();
     WALDO.taggerView.init();
   },
 
@@ -150,8 +180,8 @@ WALDO.taggerController = {
     WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent);
   },
 
-  createTag: function(name) {
-    WALDO.tagger.createBox(name);
+  createTag: function(name, id) {
+    WALDO.tagger.createBox(name, id);
     WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent);
   },
 };
