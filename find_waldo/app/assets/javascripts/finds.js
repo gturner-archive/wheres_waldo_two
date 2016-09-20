@@ -189,7 +189,12 @@ WALDO.taggerView = {
         .text(person.character.name)
         .css("top", person.y + WALDO.taggerView.yOffset * 2)
         .css("left", person.x)
+      var $deleteLink = $('<a>')
+        .addClass('delete-button')
+        .attr('data-id', person.id)
+        .text('delete');
       $('body').append($box);
+      $nameBox.append($deleteLink);
       $('body').append($nameBox);
     }
   }
