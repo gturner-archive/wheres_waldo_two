@@ -12,6 +12,8 @@ WALDO.tagger = {
 
   tempBoxCoords: [],
 
+  leaderboard: [],
+
   init: function() {
     this.getNames();
     return this.getTags();
@@ -101,6 +103,10 @@ WALDO.tagger = {
     }
   },
 
+  buildLeaderboards: function(response) {
+    WALDO.tagger.leaderboards = response;
+  },
+
   getNames: function() {
     $.ajax({
       url: '/character',
@@ -118,6 +124,17 @@ WALDO.tagger = {
       type: 'GET',
       dataType: 'json',
       success: WALDO.tagger.buildTags
+    });
+
+  },
+
+  getLeaderboards: function() {
+    return $.ajax({
+      url: 'leaderboards',
+      contentType: 'application/json',
+      type: 'GET',
+      dataType: 'json',
+      success: WALDO.tagger.buildLeaderboards
     });
 
   },
@@ -148,6 +165,20 @@ WALDO.tagger = {
     });
 
   },
+
+  createLeaderboard: function(name) {
+    return $.ajax({
+      url: '/leaderboards',
+      contentType: 'application/json',
+      type: 'POST',
+      dataType: 'json',
+      success: WALDO.tagger.clearTags(),
+      data: JSON.stringify({ name: name,
+                             score: WALDO.tagger.time })
+    });
+  },
+
+
 
   updatePermanent: function(response) {
     WALDO.tagger.permanent.push(response);

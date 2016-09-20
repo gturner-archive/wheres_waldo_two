@@ -130,6 +130,15 @@ WALDO.taggerView = {
   renderAndUpdateScore: function(score) {
     $('.time-counter').empty();
     $('.time-counter').text('Time Remaining: ' + score);
+  },
+
+  renderLeaderboards: function(board) {
+    for (var i in board) {
+      // var $score = board[i];
+      var $highScore = $('<p>')
+        .text("Name: " + board[i].name + " , Score: " + board[i].score);
+      $(".score-board").append($highScore);
+    }
   }
 
 };

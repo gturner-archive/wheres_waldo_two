@@ -2,6 +2,7 @@ var WALDO = WALDO || {};
 
 WALDO.taggerController = {
   init : function() {
+    WALDO.tagger.getLeaderboards().then( WALDO.taggerView.renderLeaderboards);
     WALDO.taggerView.init();
     var promise = WALDO.tagger.init();
     promise.then( function() {
@@ -17,8 +18,10 @@ WALDO.taggerController = {
 
       if (WALDO.tagger.checkGameOver()) {
         clearInterval(int);
-        alert("You've won with a score of: " + WALDO.tagger.time);
-        WALDO.tagger.clearTags();
+        var name = prompt("You've won with a score of: " + WALDO.tagger.time + " Please Enter Your Name" );
+
+        // create high score and clears all tags
+        WALDO.tagger.createLeaderboard(name);
       }
     }, 1000);
   },
