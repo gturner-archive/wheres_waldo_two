@@ -2,22 +2,23 @@ class FindsController < ApplicationController
 
   def index
     @tags = Tag.all
-    @names = Character.all
 
     respond_to do |format|
       format.html
-      format.json { render json: @names }
+      format.js { render json: @tags.to_json(:include => :character) }
     end
-
   end
 
   def create
     @tag = Tag.new(tag_params)
     if @tag.save
-      render json: @tag
+      render json: @tag.to_json(:include => :character)
     else
 
     end
+  end
+
+  def destroy
   end
 
   private

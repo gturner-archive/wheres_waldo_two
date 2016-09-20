@@ -10,22 +10,47 @@ WALDO.tagger = {
 
   permanent: [],
 
+  tempBoxCoords: [],
+
   init: function() {
     this.getNames();
+    return this.getTags();
+  },
+
+  deleteTag: function() {
+
   },
 
   buildNames: function(response) {
     WALDO.tagger.names = response;
   },
 
+  buildTags: function(response) {
+    console.log("build tags: ", response);
+    if (response) {
+      WALDO.tagger.permanent = response;
+    }
+  },
+
   getNames: function() {
     $.ajax({
-      url: '/',
+      url: '/character',
       contentType: 'application/json',
       type: 'GET',
       dataType: 'json',
       success: WALDO.tagger.buildNames
     });
+  },
+
+  getTags: function() {
+    return $.ajax({
+      url: '/',
+      contentType: 'application/json',
+      type: 'GET',
+      dataType: 'json',
+      success: WALDO.tagger.buildTags
+    });
+
   },
 
   createTempBox: function(x, y) {
@@ -44,7 +69,6 @@ WALDO.tagger = {
 
     return $.ajax({
       url: '/finds',
-      async: false,
       contentType: 'application/json',
       type: 'POST',
       dataType: 'json',
@@ -55,7 +79,9 @@ WALDO.tagger = {
   },
 
   updatePermanent: function(response) {
+    console.log(response);
     WALDO.tagger.permanent.push(response);
+
   }
 
 };
@@ -151,6 +177,7 @@ WALDO.taggerView = {
   },
 
   renderPermanent: function(permArr) {
+    console.log("perm array:", permArr);
     for (var i in permArr) {
       var person = permArr[i];
       var $box = $('<div>')
@@ -159,7 +186,7 @@ WALDO.taggerView = {
         .css("left", person.x);
       var $nameBox = $('<div>')
         .addClass('name-box')
-        .text(person.name)
+        .text(person.character.name)
         .css("top", person.y + WALDO.taggerView.yOffset * 2)
         .css("left", person.x)
       $('body').append($box);
@@ -171,8 +198,14 @@ WALDO.taggerView = {
 
 WALDO.taggerController = {
   init : function() {
-    WALDO.tagger.init();
     WALDO.taggerView.init();
+
+    var promise = WALDO.tagger.init();
+    promise.then( function() {
+      WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent);
+    });
+
+    
   },
 
   createTempTag: function(x, y) {
@@ -181,7 +214,9 @@ WALDO.taggerController = {
   },
 
   createTag: function(name, id) {
-    WALDO.tagger.createBox(name, id);
-    WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent);
+    var promise = WALDO.tagger.createBox(name, id);
+    promise.then( function () {
+      WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent)
+      });
   },
 };
