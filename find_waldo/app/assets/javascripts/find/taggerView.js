@@ -1,4 +1,4 @@
-WALDO = WALDO || {};
+var WALDO = WALDO || {};
 
 WALDO.taggerView = {
   xOffset: 25,
@@ -130,7 +130,6 @@ WALDO.taggerView = {
   renderAndUpdateScore: function(score) {
     $('.time-counter').empty();
     $('.time-counter').text('Time Remaining: ' + score);
-
   }
 
 };

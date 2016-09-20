@@ -1,4 +1,4 @@
-WALDO = WALDO || {};
+var WALDO = WALDO || {};
 
 WALDO.taggerController = {
   init : function() {
@@ -7,18 +7,23 @@ WALDO.taggerController = {
     promise.then( function() {
       WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.getUnselected(), WALDO.tagger.permanent);
     });
+    this.gameLoop();
+  },
 
-    var gameLoop = setInterval(function() {
+  gameLoop: function() {
+    var int = setInterval(function() {
       WALDO.tagger.decrementTime();
       WALDO.taggerView.renderAndUpdateScore(WALDO.tagger.time);
 
-      if (WALDO.tagger.checkGameOver) {
-        clearInterval(gameLoop);
+      if (WALDO.tagger.checkGameOver()) {
+        clearInterval(int);
         alert("You've won with a score of: " + WALDO.tagger.time);
-
+        WALDO.tagger.clearTags();
       }
     }, 1000);
   },
+
+
 
   deleteTag: function(id, charId) {
     WALDO.tagger.deleteBox(id, charId);

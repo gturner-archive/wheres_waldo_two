@@ -18,9 +18,17 @@ WALDO.tagger = {
   },
 
   checkGameOver: function() {
+    if (WALDO.tagger.getUnselected().length === 0 || WALDO.tagger.time === 0) {
+      return true;
+    }
+    return false;
+  },
 
-    
-    return ((this.selectedNames.length === this.names.length) && this.selectedNames.length === 0);
+  clearTags: function() {
+    var tags = this.permanent;
+    for (var index in tags) {
+      this.syncAjax(tags[index].id)
+    }
   },
 
   decrementTime: function() {
@@ -38,6 +46,20 @@ WALDO.tagger = {
       }
     }
     return names;
+  },
+
+  syncAjax: function(id) {
+    $.ajax({
+      async: false,
+      url: '/finds',
+      contentType: 'application/json',
+      type: 'DELETE',
+      dataType: 'json',
+      data: JSON.stringify({id: id}),
+      success: function() {
+        console.log('this has been deleted');
+      }
+    });
   },
 
   deleteBox: function(id, charId) {
@@ -75,7 +97,7 @@ WALDO.tagger = {
 
       response.forEach(function (el) {
         WALDO.tagger.selectedNames.push(el.character.id);
-      });  
+      });
     }
   },
 
@@ -103,7 +125,7 @@ WALDO.tagger = {
   createTempBox: function(x, y) {
     if (WALDO.tagger.getUnselected().length) {
       WALDO.tagger.tempBoxCoords = [x,y];
-    } 
+    }
   },
 
   createBox: function(name, id) {
@@ -133,7 +155,3 @@ WALDO.tagger = {
   }
 
 };
-
-
-
-
