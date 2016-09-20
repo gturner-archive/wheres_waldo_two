@@ -39,6 +39,22 @@ WALDO.taggerView = {
   init: function() {
     WALDO.taggerView.pictureClickListener();
     WALDO.taggerView.nameClickListener();
+    WALDO.taggerView.pictureHoverListener();
+  },
+
+  pictureHoverListener: function () {
+    $('body').on('mouseenter',WALDO.taggerView.showTags);
+    $('body').on('mouseleave', WALDO.taggerView.hideTags);
+  },
+
+  showTags: function () {
+    $('.perm-tag').show();
+    $('.name-box').show();
+  },
+
+  hideTags: function() {
+    $('.perm-tag').hide();
+    $('.name-box').hide();
   },
 
   pictureClickListener: function() {
