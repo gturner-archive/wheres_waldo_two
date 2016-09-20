@@ -8,6 +8,8 @@ WALDO.tagger = {
 
   names: [],
 
+  selectedNames: [],
+
   permanent: [],
 
   tempBoxCoords: [],
@@ -17,8 +19,42 @@ WALDO.tagger = {
     return this.getTags();
   },
 
-  deleteTag: function() {
+  getUnselected: function() {
+    var names = this.names.slice();
+    for (var id in this.selectedNames) {
+      for (var i = 0; i < names.length; i++) {
+        var index = names.length - 1 - i;
+        if (this.selectedNames[id] === names[index].id) {
+          names.splice(index, 1);
+        }
+      }
+    }
+    return names;
+  },
 
+  deleteBox: function(id) {
+
+    for (var j = 0; j < this.selectedNames.length; j++) {
+      var index = this.selectedNames.length - 1;
+      if (parseInt(id) === this.selectedNames[index]) {
+        this.selectedNames.splice(index, 1);
+      }
+    }
+
+    for (var i = this.permanent.length - 1; i >= 0; i--) {
+      if (this.permanent[i].id === parseInt(id)) {
+        this.permanent.splice(i, 1);
+      }
+    }
+
+    return $.ajax({
+      url: '/finds',
+      contentType: 'application/json',
+      type: 'DELETE',
+      dataType: 'json',
+      data: JSON.stringify({id: id}),
+      success: WALDO.tagger.buildNames
+    });
   },
 
   buildNames: function(response) {
@@ -26,7 +62,6 @@ WALDO.tagger = {
   },
 
   buildTags: function(response) {
-    console.log("build tags: ", response);
     if (response) {
       WALDO.tagger.permanent = response;
     }
@@ -79,9 +114,8 @@ WALDO.tagger = {
   },
 
   updatePermanent: function(response) {
-    console.log(response);
     WALDO.tagger.permanent.push(response);
-
+    WALDO.tagger.selectedNames.push(response.character.id)
   }
 
 };
@@ -94,11 +128,22 @@ WALDO.taggerView = {
     WALDO.taggerView.pictureClickListener();
     WALDO.taggerView.nameClickListener();
     WALDO.taggerView.pictureHoverListener();
+    WALDO.taggerView.deleteLinkListener();
   },
 
   pictureHoverListener: function () {
     $('body').on('mouseenter',WALDO.taggerView.showTags);
     $('body').on('mouseleave', WALDO.taggerView.hideTags);
+  },
+
+  deleteLinkListener: function() {
+    $('body').on('click', '.delete-button', WALDO.taggerView.deleteLink)
+  },
+
+  deleteLink: function(e) {
+    e.preventDefault();
+    var id = $(e.target).attr('data-id');
+    WALDO.taggerController.deleteTag(id);
   },
 
   showTags: function () {
@@ -136,6 +181,8 @@ WALDO.taggerView = {
   render: function(coordsArr, namesArr, permArr) {
     $('.temp-tag').remove();
     $('.dropdown').remove();
+    $('.name-box').remove();
+    $('.perm-tag').remove();
 
     if (coordsArr[0]) {
       this.renderTemp(coordsArr, namesArr);
@@ -177,7 +224,6 @@ WALDO.taggerView = {
   },
 
   renderPermanent: function(permArr) {
-    console.log("perm array:", permArr);
     for (var i in permArr) {
       var person = permArr[i];
       var $box = $('<div>')
@@ -189,10 +235,9 @@ WALDO.taggerView = {
         .text(person.character.name)
         .css("top", person.y + WALDO.taggerView.yOffset * 2)
         .css("left", person.x)
-      var $deleteLink = $('<a>')
+      var $deleteLink = $('<a href="#">delete</a>')
         .addClass('delete-button')
-        .attr('data-id', person.id)
-        .text('delete');
+        .attr('data-id', person.id);
       $('body').append($box);
       $nameBox.append($deleteLink);
       $('body').append($nameBox);
@@ -207,21 +252,24 @@ WALDO.taggerController = {
 
     var promise = WALDO.tagger.init();
     promise.then( function() {
-      WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent);
+      WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.getUnselected(), WALDO.tagger.permanent);
     });
+  },
 
-    
+  deleteTag: function(id) {
+    WALDO.tagger.deleteBox(id);
+    WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.getUnselected(), WALDO.tagger.permanent);
   },
 
   createTempTag: function(x, y) {
     WALDO.tagger.createTempBox(x, y);
-    WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent);
+    WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.getUnselected(), WALDO.tagger.permanent);
   },
 
   createTag: function(name, id) {
     var promise = WALDO.tagger.createBox(name, id);
     promise.then( function () {
-      WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.names, WALDO.tagger.permanent)
+      WALDO.taggerView.render(WALDO.tagger.tempBoxCoords, WALDO.tagger.getUnselected(), WALDO.tagger.permanent)
       });
   },
 };

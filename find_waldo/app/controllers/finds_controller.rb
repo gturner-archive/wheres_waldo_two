@@ -19,6 +19,10 @@ class FindsController < ApplicationController
   end
 
   def destroy
+    if @tag = Tag.find_by_id(params[:id])
+      @tag.destroy
+    else
+    end
   end
 
   private
