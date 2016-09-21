@@ -19,8 +19,15 @@ WALDO.tagger = {
     return this.getTags();
   },
 
-  checkGameOver: function() {
-    if (WALDO.tagger.getUnselected().length === 0 || WALDO.tagger.time === 0) {
+  checkWin: function() {
+    if (WALDO.tagger.getUnselected().length === 0) {
+      return true;
+    }
+    return false;
+  },
+
+  checkLose: function() {
+    if (WALDO.tagger.time === 0) {
       return true;
     }
     return false;

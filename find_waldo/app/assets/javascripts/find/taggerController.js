@@ -16,17 +16,18 @@ WALDO.taggerController = {
       WALDO.tagger.decrementTime();
       WALDO.taggerView.renderAndUpdateScore(WALDO.tagger.time);
 
-      if (WALDO.tagger.checkGameOver()) {
+      if (WALDO.tagger.checkWin()) {
         clearInterval(int);
         var name = prompt("You've won with a score of: " + WALDO.tagger.time + " Please Enter Your Name" );
-
         // create high score and clears all tags
         WALDO.tagger.createLeaderboard(name);
+      } else if (WALDO.tagger.checkLose()) {
+        clearInterval(int);
+        alert("Sorry, you lose");
+        WALDO.tagger.clearTags();
       }
     }, 1000);
   },
-
-
 
   deleteTag: function(id, charId) {
     WALDO.tagger.deleteBox(id, charId);
